@@ -26,6 +26,7 @@ pub enum Statement {
     Expression(Box<Expr>),
     If(Box<Expr>, Vec<Box<Statement>>, Option<Vec<Box<Statement>>>),
     Function(String, Box<Vec<String>>, Vec<Box<Statement>>),
+    Assignment(String, Box<Expr>),
 }
 
 
@@ -36,6 +37,10 @@ pub enum Opcode {
     Add,
     Sub,
     Pow
+}
+
+pub struct Module {
+    pub body: Vec<Box<Statement>>
 }
 
 impl Debug for Expr {

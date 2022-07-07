@@ -1,5 +1,9 @@
 pub mod ast;
+pub mod compile;
+
 #[macro_use] extern crate lalrpop_util;
+
+use crate::ast::Module;
 
 lalrpop_mod!(pub grammar); // synthesized by LALRPOP
 
@@ -26,5 +30,6 @@ fn main() {
         };
     };
     "#);
-    println!("{:#?}", result)
+    println!("{:#?}", result);
+    compile::compile(Module{ body: result.unwrap()});
 }
