@@ -1,0 +1,15 @@
+[package]
+name = "compiler"
+version = "0.1.0"
+authors = ["henry232323 <14969260+henry232323@users.noreply.github.com>"]
+edition = "2021"
+build = "src/build.rs" # LALRPOP preprocessing
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+lalrpop-util = { version = "^0.19", features = ["lexer"] }
+regex = "1"
+
+[build-dependencies]
+lalrpop = "0.19.7"
