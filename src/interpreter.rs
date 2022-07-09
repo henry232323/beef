@@ -97,6 +97,7 @@ impl Runtime {
             If(_, _, _) => {}
             Function(_, _, _) => {}
             Assignment(_, _) => {}
+            While(_, _) => {}
         }
     }
 

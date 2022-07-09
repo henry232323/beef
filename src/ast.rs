@@ -27,6 +27,7 @@ pub enum Statement {
     If(Box<Expr>, Vec<Box<Statement>>, Option<Vec<Box<Statement>>>),
     Function(String, Box<Vec<String>>, Vec<Box<Statement>>),
     Assignment(String, Box<Expr>),
+    While(Box<Expr>, Vec<Box<Statement>>),
 }
 
 
@@ -71,6 +72,7 @@ impl Debug for Statement {
             If(ref cond, body, elsebody) => write!(fmt, "If(cond=({:#?}), body={:#?}, elsebody={:#?})", cond, body, elsebody),
             Function(ref name, args, body) => write!(fmt, "Function(name=({:#?}), args={:#?}, body={:#?})", name, args, body),
             Assignment(ref name, value) => write!(fmt, "Assignment(name=({:#?}), value={:#?})", name, value),
+            While(ref cond, body) => write!(fmt, "While(cond=({:#?}), body={:#?})", cond, body),
         }
     }
 }

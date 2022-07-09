@@ -129,6 +129,10 @@ If: Box<Statement> = {
     "if" <cond: Expr> "{" <body: Body> "}" "else" "{" <elsebody: Body> "}" => Box::new(Statement::If(cond, body, Some(elsebody)))
 }
 
+While: Box<Statement> = {
+    "while" <cond: Expr> "{" <body: Body> "}" => Box::new(Statement::While(cond, body)),
+}
+
 Function: Box<Statement> = {
     "fun" <name: Name> <args: ArgumentList> "{" <body: Body> "}" => Box::new(Statement::Function(name, Box::new(args), body)),
 }
@@ -150,4 +154,5 @@ pub Statement: Box<Statement> = {
     If,
     Function,
     Assignment,
+    While,
 }

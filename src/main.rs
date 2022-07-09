@@ -29,6 +29,12 @@ fn main() {
             print(+"Hello world!".myattr[1].funky());
         };
     };
+    while 3 {
+        adsf;
+        if 3 {
+            asdfs;
+        };
+    };
     "#);
     println!("{:#?}", result);
     // interpreter::Runtime::new(Module{ body: result.unwrap()}).eval();
