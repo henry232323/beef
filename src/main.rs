@@ -1,5 +1,5 @@
 pub mod ast;
-pub mod compile;
+// mod interpreter;
 
 #[macro_use] extern crate lalrpop_util;
 
@@ -31,5 +31,5 @@ fn main() {
     };
     "#);
     println!("{:#?}", result);
-    compile::compile(Module{ body: result.unwrap()});
+    // interpreter::Runtime::new(Module{ body: result.unwrap()}).eval();
 }

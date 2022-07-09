@@ -68,8 +68,9 @@ impl Debug for Statement {
         use self::Statement::*;
         match &*self {
             Expression(ref expr) => write!(fmt, "Expression({:#?})", expr),
-            If(ref cond, body, elsebody) => write!(fmt, "If(cond=({:#?}), body={:#?} elsebody={:#?})", cond, body, elsebody),
-            Function(ref name, args, body) => write!(fmt, "Function(name=({:#?}), args={:#?} body={:#?})", name, args, body),
+            If(ref cond, body, elsebody) => write!(fmt, "If(cond=({:#?}), body={:#?}, elsebody={:#?})", cond, body, elsebody),
+            Function(ref name, args, body) => write!(fmt, "Function(name=({:#?}), args={:#?}, body={:#?})", name, args, body),
+            Assignment(ref name, value) => write!(fmt, "Assignment(name=({:#?}), value={:#?})", name, value),
         }
     }
 }

@@ -1,6 +1,15 @@
 use std::borrow::Borrow;
 use crate::ast::{Expr, Module, Statement};
 
+const STORE: i8 = 0;
+
+struct Instruction {
+    pub a: i8,
+    pub b: i8,
+    pub c: i8,
+    pub op: i8,
+}
+
 pub enum Ops {
     LoadConst(i32),
     LoadConstTop,
@@ -9,19 +18,21 @@ pub enum Ops {
 
 pub fn compile_expr(expr: Box<Expr>) -> Vec<Ops> {
     use self::Expr::*;
-    return match expr {
-        Integer(n) => Vec::from([Ops::LoadConst(n)])
+    return match *expr {
+        Integer(n) => Vec::from([Ops::LoadConst(n)]),
+        _ => Vec::new()
     };
 }
 
 pub fn compile_stmt(statement: Box<Statement>) -> Vec<Ops> {
     use self::Statement::*;
-    return match statement {
+    return match *statement {
         Assignment(name, expr) => {
             let mut ops = compile_expr(expr);
             ops.push(Ops::Store);
             ops
         }
+        _ => Vec::new()
     }
 }
 
