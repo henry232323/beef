@@ -35,6 +35,9 @@ fn main() {
             asdfs;
         };
     };
+    for dude in dudes {
+        sah;
+    };
     "#);
     println!("{:#?}", result);
     // interpreter::Runtime::new(Module{ body: result.unwrap()}).eval();
