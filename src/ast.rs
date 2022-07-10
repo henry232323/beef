@@ -1,10 +1,3 @@
-// pub enum Expr {
-//     Num(i32),
-//     BinaryOp(Box<Expr>, Opcode, Box<Expr>),
-//     Error,
-//     Str(String)
-// }
-
 use std::fmt::{Debug, Error, Formatter};
 
 #[derive(Clone)]

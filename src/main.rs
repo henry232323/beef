@@ -1,6 +1,7 @@
 pub mod ast;
 // mod lib;
 mod interpreter;
+mod lib;
 // mod interpreter;
 
 #[macro_use]

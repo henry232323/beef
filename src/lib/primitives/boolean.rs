@@ -1,17 +1,26 @@
-use std::error::Error;
-use crate::lib::primitives::object::Object;
+use crate::lib::primitives::types::{Type, TypeEnum};
 
-struct Boolean{}
-impl Object for Boolean {
-    fn eq(&self, other: &dyn Object) -> Result<bool, dyn Error> {
-        let Boolean(self_val) = self;
-        return match *other {
-            Expr::Boolean(other_val) => Ok(self_val == other_val),
-            _ => Ok(false)
-        };
+pub struct Boolean {
+    pub value: bool,
+}
+
+impl Boolean {
+    pub(crate) fn new(value: bool) -> Box<TypeEnum> {
+        return Box::new(TypeEnum::Boolean(Boolean { value }));
+    }
+}
+
+impl Type for Boolean {
+    fn eq(&self, other: &TypeEnum) -> Result<Box<TypeEnum>, &str> {
+        match other {
+            TypeEnum::Object(_) => Ok(Boolean::new(false)),
+            TypeEnum::Float(float) => Ok(Boolean::new(false)),
+            TypeEnum::Integer(int) => Ok(Boolean::new(false)),
+            TypeEnum::Boolean(bool) => Ok(Boolean::new(bool.value == bool.value)),
+        }
     }
 
-    fn add(&self, other: &dyn Object) -> Result<None, dyn Error> {
-        return Err(());
+    fn add(&self, _: &TypeEnum) -> Result<Box<TypeEnum>, &str> {
+        return Err("Cannot add boolean");
     }
 }

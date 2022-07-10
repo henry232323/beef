@@ -1,20 +1,32 @@
-use std::error::Error;
-use crate::lib::primitives::object::Object;
+use crate::lib::primitives::boolean::Boolean;
+use crate::lib::primitives::types::{Type, TypeEnum};
 
-impl Object for Expr::Integer {
-    fn eq(&self, other: &dyn Object) -> Result<bool, dyn Error> {
-        let Expr::Integer(self_val) = self;
-        return match *other {
-            Expr::Integer(other_val) => Ok(self_val == other_val),
-            _ => false
-        };
+pub struct Integer {
+    pub value: i32,
+}
+
+impl Integer {
+    pub fn new(value: i32) -> Box<TypeEnum> {
+        return Box::new(TypeEnum::Integer(Integer { value }));
+    }
+}
+
+impl Type for Integer {
+    fn eq(&self, other: &TypeEnum) -> Result<Box<TypeEnum>, &str> {
+        match other {
+            TypeEnum::Object(_) => Ok(Boolean::new(false)),
+            TypeEnum::Float(float) => Ok(Boolean::new(float.value == self.value as f32)),
+            TypeEnum::Integer(int) => Ok(Boolean::new(int.value == self.value)),
+            TypeEnum::Boolean(_) => Ok(Boolean::new(false)),
+        }
     }
 
-    fn add(&self, other: &dyn Object) -> Result<i32, dyn Error> {
-        let Expr::Integer(self_val) = self;
-        return match *other {
-            Expr::Integer(other_val) => Ok(self_val + other_val),
-            _ => Err(false)
-        };
+    fn add(&self, other: &TypeEnum) -> Result<Box<TypeEnum>, &str> {
+        match other {
+            TypeEnum::Object(_) => Err("Cannot add object to int"),
+            TypeEnum::Float(float) => Ok(Integer::new(float.value as i32 + self.value)),
+            TypeEnum::Integer(int) => Ok(Integer::new(int.value + self.value)),
+            TypeEnum::Boolean(_) => Err("Cannot add bool to int"),
+        }
     }
 }

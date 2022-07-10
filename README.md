@@ -11,6 +11,7 @@
   - Break keyword
   - Continue keyword
   - Return keyword
+  - Pattern matching
 
 ### Bytecode Spec
 | Modification<br/>Timestamp<br/>4 bytes | Description |
