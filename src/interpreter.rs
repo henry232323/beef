@@ -1,65 +1,9 @@
-use std::any::Any;
-use std::error::Error;
-use crate::ast::{Expr, Statement};
+use crate::ast::{Expr, Opcode, Statement};
 use crate::Module;
 
-trait Object {
-    fn eq(&self, other: &dyn Object) -> Result<bool, dyn Error>;
-    fn add(&self, other: &dyn Object) -> Result<dyn Any, dyn Error>;
-}
+use std::collections::HashMap;
 
-struct Boolean{}
-impl Object for Expr::Boolean {
-    fn eq(&self, other: &dyn Object) -> Result<bool, dyn Error> {
-        let Expr::Boolean(self_val) = self;
-        return match *other {
-            Expr::Boolean(other_val) => Ok(self_val == other_val),
-            _ => Ok(false)
-        };
-    }
-
-    fn add(&self, other: &dyn Object) -> Result<None, dyn Error> {
-        return Err(());
-    }
-}
-
-impl Object for Expr::Integer {
-    fn eq(&self, other: &dyn Object) -> Result<bool, dyn Error> {
-        let Expr::Integer(self_val) = self;
-        return match *other {
-            Expr::Integer(other_val) => Ok(self_val == other_val),
-            _ => false
-        };
-    }
-
-    fn add(&self, other: &dyn Object) -> Result<i32, dyn Error> {
-        let Expr::Integer(self_val) = self;
-        return match *other {
-            Expr::Integer(other_val) => Ok(self_val + other_val),
-            _ => Err(false)
-        };
-    }
-}
-
-impl Object for Expr::Float {
-    fn eq(&self, other: &dyn Object) -> Result<bool, dyn Error> {
-        let Expr::Float(self_val) = self;
-        return match *other {
-            Expr::Float(other_val) => Ok(self_val == other_val),
-            _ => false
-        };
-    }
-
-    fn add(&self, other: &dyn Object) -> Result<f32, dyn Error> {
-        let Expr::Float(self_val) = self;
-        return match *other {
-            Expr::Float(other_val) => Ok(self_val + other_val),
-            _ => Err(false)
-        };
-    }
-}
-
-pub trait Function {}
+use std::iter::zip;
 
 pub struct Runtime {
     module: Module,
@@ -67,46 +11,141 @@ pub struct Runtime {
 
 impl Runtime {
     pub fn new(module: Module) -> Runtime {
-        return Runtime {
-            module
+        return Runtime { module };
+    }
+
+    fn eval_expr(&mut self, expr: &Box<Expr>, env: &mut HashMap<String, Box<Expr>>) -> Expr {
+        use self::Expr::*;
+        return match &**expr {
+            BinaryOp(expr1, Opcode::Add, expr2) => {
+                let operand1 = self.eval_expr(&expr1, env);
+                let operand2 = self.eval_expr(&expr2, env);
+
+                match (operand1, operand2) {
+                    (Float(x), Float(y)) => Float(x + y),
+                    (Float(x), Integer(y)) => Float(x + y as f32),
+                    (Integer(x), Float(y)) => Float(x as f32 + y),
+                    (Integer(x), Integer(y)) => Integer(x + y),
+                    _ => {
+                        panic!("Cannot perform binary op");
+                    }
+                }
+            }
+            UnaryOp(Opcode::Add, expr) => {
+                let new_val = self.eval_expr(&expr, env);
+                match new_val {
+                    Float(x) => Float(x),
+                    Integer(x) => Integer(x),
+                    _ => panic!("Cannot +"),
+                }
+            }
+            UnaryOp(Opcode::Sub, expr) => {
+                let new_val = self.eval_expr(&expr, env);
+                match new_val {
+                    Float(x) => Float(-x),
+                    Integer(x) => Integer(-x),
+                    _ => panic!("Cannot invert"),
+                }
+            }
+            Variable(name) => match env.get(name) {
+                Option::None => {
+                    panic!("Cannot resolve name!")
+                }
+                Some(x) => *x.clone(),
+            },
+            FunctionCall(expr, args) => {
+                let func = self.eval_expr(&expr, env);
+                match func {
+                    Function(_name, arg_names, body) => {
+                        if _name == "print" {
+                            println!("{:#?}", args[0]);
+                            return None;
+                        }
+
+                        let mut new_env = env.clone();
+
+                        for (arg_name, arg_value) in zip((*arg_names).clone(), args) {
+                            new_env.insert(arg_name, arg_value.clone());
+                        }
+
+                        match self.eval_body(&body, &mut new_env) {
+                            Option::None => None,
+                            Some(x) => x,
+                        }
+                    }
+                    _ => {
+                        panic!("Is not callable!");
+                    }
+                }
+            }
+            // ItemSubscription(_, _) => { None }
+            // AttrAccess(_, _) => { None }
+            expr => expr.clone(),
         };
     }
 
-    fn eval_expr(&mut self, expr: Box<Expr>) {
-        use self::Expr::*;
-        match *expr {
-            Boolean(_) => {}
-            Integer(_) => {}
-            Float(_) => {}
-            BinaryOp(_, _, _) => {}
-            UnaryOp(_, _) => {}
-            Error => {}
-            Str(_) => {}
-            List(_) => {}
-            Variable(_) => {}
-            FunctionCall(_, _) => {}
-            ItemSubscription(_, _) => {}
-            AttrAccess(_, _) => {}
-        }
-    }
-
-    fn eval_stmt(&mut self, statement: Box<Statement>) {
+    fn eval_stmt(
+        &mut self,
+        statement: &Box<Statement>,
+        env: &mut HashMap<String, Box<Expr>>,
+    ) -> Option<Expr> {
         use self::Statement::*;
-        match *statement {
-            Expression(_) => {}
-            If(_, _, _) => {}
-            Function(_, _, _) => {}
-            Assignment(_, _) => {}
-        }
+        return match &**statement {
+            Expression(expr) => Some(self.eval_expr(&expr, env)),
+            If(cond, body, elsebody) => {
+                let f_cond = self.eval_expr(&cond, env);
+                match f_cond {
+                    Expr::Boolean(val) => {
+                        if val {
+                            self.eval_body(&body, env)
+                        } else {
+                            match elsebody {
+                                Some(e_body) => self.eval_body(&e_body, env),
+                                None => None,
+                            }
+                        }
+                    }
+                    _expr => None,
+                }
+            }
+            Function(_, _, _) => None,
+            Assignment(name, value) => {
+                let mut new_env = env.clone();
+                new_env.insert(name.clone(), value.clone());
+                None
+            }
+            Return(expr) => {
+                let res = self.eval_expr(&expr, env);
+                Some(res)
+            }
+        };
     }
 
-    fn eval_body(&mut self, body: &Vec<Box<Statement>>) {
+    fn eval_body(
+        &mut self,
+        body: &Vec<Box<Statement>>,
+        env: &mut HashMap<String, Box<Expr>>,
+    ) -> Option<Expr> {
         for statement in body {
-            eval_stmt(&statement)
+            match self.eval_stmt(statement, env) {
+                None => {}
+                Some(x) => return Some(x),
+            }
         }
+
+        return None;
     }
 
     pub fn eval(&mut self) {
-        self.eval_body(&self.module.body)
+        let mut env: HashMap<String, Box<Expr>> = HashMap::new();
+        env.insert(
+            "print".to_string(),
+            Box::from(Expr::Function(
+                "print".to_string(),
+                Box::from(Vec::from(["item".to_string()])),
+                Vec::new(),
+            )),
+        );
+        self.eval_body(&self.module.body.clone(), &mut env);
     }
 }

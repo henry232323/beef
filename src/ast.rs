@@ -7,6 +7,7 @@
 
 use std::fmt::{Debug, Error, Formatter};
 
+#[derive(Clone)]
 pub enum Expr {
     Boolean(bool),
     Integer(i32),
@@ -20,15 +21,18 @@ pub enum Expr {
     FunctionCall(Box<Expr>, Vec<Box<Expr>>),
     ItemSubscription(Box<Expr>, Box<Expr>),
     AttrAccess(Box<Expr>, String),
+    Function(String, Box<Vec<String>>, Vec<Box<Statement>>),
+    None,
 }
 
+#[derive(Clone)]
 pub enum Statement {
     Expression(Box<Expr>),
     If(Box<Expr>, Vec<Box<Statement>>, Option<Vec<Box<Statement>>>),
     Function(String, Box<Vec<String>>, Vec<Box<Statement>>),
     Assignment(String, Box<Expr>),
+    Return(Box<Expr>),
 }
-
 
 #[derive(Copy, Clone)]
 pub enum Opcode {
@@ -36,11 +40,11 @@ pub enum Opcode {
     Div,
     Add,
     Sub,
-    Pow
+    Pow,
 }
 
 pub struct Module {
-    pub body: Vec<Box<Statement>>
+    pub body: Vec<Box<Statement>>,
 }
 
 impl Debug for Expr {
@@ -55,10 +59,20 @@ impl Debug for Expr {
             Str(s) => write!(fmt, "Str({:#?})", s),
             List(l) => write!(fmt, "List({:#?})", l),
             Variable(v) => write!(fmt, "Variable({:#})", v),
-            FunctionCall(ref fun, args) => write!(fmt, "FunctionCall({:#?}, args={:#?})", fun, args),
-            ItemSubscription(ref expr, ref index) => write!(fmt, "ItemSubscription({:#?}, index={:#?})", expr, index),
+            FunctionCall(ref fun, args) => {
+                write!(fmt, "FunctionCall({:#?}, args={:#?})", fun, args)
+            }
+            ItemSubscription(ref expr, ref index) => {
+                write!(fmt, "ItemSubscription({:#?}, index={:#?})", expr, index)
+            }
             AttrAccess(ref expr, attr) => write!(fmt, "AttrAccess({:#?}, attr={:#?})", expr, attr),
-            Error => write!(fmt, "error"),
+            Error => write!(fmt, "Error"),
+            Function(name, args, body) => write!(
+                fmt,
+                "Function({:#?}, args={:#?}, body={:#?}, )",
+                name, args, body
+            ),
+            None => write!(fmt, "None"),
         }
     }
 }
@@ -68,9 +82,20 @@ impl Debug for Statement {
         use self::Statement::*;
         match &*self {
             Expression(ref expr) => write!(fmt, "Expression({:#?})", expr),
-            If(ref cond, body, elsebody) => write!(fmt, "If(cond=({:#?}), body={:#?}, elsebody={:#?})", cond, body, elsebody),
-            Function(ref name, args, body) => write!(fmt, "Function(name=({:#?}), args={:#?}, body={:#?})", name, args, body),
-            Assignment(ref name, value) => write!(fmt, "Assignment(name=({:#?}), value={:#?})", name, value),
+            If(ref cond, body, elsebody) => write!(
+                fmt,
+                "If(cond=({:#?}), body={:#?}, elsebody={:#?})",
+                cond, body, elsebody
+            ),
+            Function(ref name, args, body) => write!(
+                fmt,
+                "Function(name=({:#?}), args={:#?}, body={:#?})",
+                name, args, body
+            ),
+            Assignment(ref name, value) => {
+                write!(fmt, "Assignment(name=({:#?}), value={:#?})", name, value)
+            }
+            Return(ref expr) => write!(fmt, "Return({:#?})", expr),
         }
     }
 }

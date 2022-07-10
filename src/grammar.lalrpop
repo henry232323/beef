@@ -137,9 +137,13 @@ Assignment: Box<Statement> = {
     <Name> "=" <Expr> => Box::new(Statement::Assignment(<>)),
 }
 
+Return: Box<Statement> = {
+    "return" <Expr> => Box::new(Statement::Return(<>)),
+}
+
 pub Body: Vec<Box<Statement>> = {
-    <Statement> ";" => Vec::from([<>]),
-    <mut old: Body> <new: Statement> ";" => {
+    <FunctionBodyStatement> ";" => Vec::from([<>]),
+    <mut old: Body> <new: FunctionBodyStatement> ";" => {
         old.push(new);
         return old
     },
@@ -150,4 +154,12 @@ pub Statement: Box<Statement> = {
     If,
     Function,
     Assignment,
+}
+
+pub FunctionBodyStatement: Box<Statement> = {
+    Expr => Box::new(Statement::Expression(<>)),
+    If,
+    Function,
+    Assignment,
+    Return
 }
