@@ -13,6 +13,7 @@ lalrpop_mod!(pub grammar); // synthesized by LALRPOP
 fn main() {
     let result = grammar::BodyParser::new().parse(
         r#"
+    import math as matt;
     print("Hello world!");
     "#,
     );

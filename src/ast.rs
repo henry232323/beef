@@ -34,7 +34,16 @@ pub enum Statement {
     Return(Box<Expr>),
     While(Box<Expr>, Vec<Box<Statement>>),
     For(String, Box<Expr>, Vec<Box<Statement>>),
+    //numpy=<String> np=<String>
+    //<[import], [x], [from], [y], [as], [z]>
+    Import(Vec<Box<Name>>),
 }
+
+#[derive(Clone)]
+pub enum Name {
+    Name(String),
+    Alias(String, String),
+} 
 
 #[derive(Copy, Clone)]
 pub enum Opcode {
@@ -104,7 +113,23 @@ impl Debug for Statement {
                 "For(name=({:#?}), value={:#?}, body={:#?})",
                 name, value, body
             ),
+
+            Import(ref imports) => write!(
+                fmt,
+                "Import(imports=({:#?}))",
+                imports
+            )
         }
+    }
+}
+
+impl Debug for Name {
+    fn fmt(&self, fmt: &mut Formatter) -> Result<(), Error> {
+        use self::Name::*;
+        match &*self {
+            Name(name) => write!(fmt, "Name::Name({:#?})", name),
+            Alias(name, alias) => write!(fmt, "Name::Alias({:#?}, {:#?})", name, alias),
+        } 
     }
 }
 
@@ -120,3 +145,6 @@ impl Debug for Opcode {
         }
     }
 }
+
+
+

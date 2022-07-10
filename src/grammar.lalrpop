@@ -1,5 +1,5 @@
 use std::str::FromStr;
-use crate::ast::{Expr, Opcode, Statement};
+use crate::ast::{Expr, Opcode, Statement, Name};
 
 grammar;
 
@@ -114,6 +114,15 @@ Name: String = {
     r"\p{L}(\p{L}|\d)*" => <>.into()
 }
 
+ImportName: String = {
+    <Name> => <>,
+    <mut old: ImportName> "." <new: Name> => {
+        old.push_str(&".");
+        old.push_str(&new);
+        old
+    },
+}
+
 ArgumentList: Vec<String> = {
     <Name> => Vec::from([<>]),
     <mut old: ArgumentList> "," <new: Name> => {
@@ -127,6 +136,11 @@ ArgumentList: Vec<String> = {
 If: Box<Statement> = {
     "if" <cond: Expr> "{" <body: Body> "}" => Box::new(Statement::If(cond, body, None)),
     "if" <cond: Expr> "{" <body: Body> "}" "else" "{" <elsebody: Body> "}" => Box::new(Statement::If(cond, body, Some(elsebody)))
+}
+
+Import: Box<Statement> = {
+    "import" <name: ImportName> => Box::new(Statement::Import(Vec::from([Box::new(Name::Name(name))]))),
+    "import" <name: ImportName> "as" <alias: Name> => Box::new(Statement::Import(Vec::from([Box::new(Name::Alias(name, alias))])))
 }
 
 While: Box<Statement> = {
@@ -172,6 +186,7 @@ pub Statement: Box<Statement> = {
     Assignment,
     While,
     For,
+    Import
 }
 
 pub FunctionBodyStatement: Box<Statement> = {

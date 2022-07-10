@@ -120,6 +120,7 @@ impl Runtime {
             }
             While(_, _) => None,
             For(_, _, _) => None,
+            Import(_) => None,
         };
     }
 
