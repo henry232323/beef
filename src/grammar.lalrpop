@@ -141,10 +141,6 @@ For: Box<Statement> = {
     "for" <name: Name> "in" <value: Expr> "{" <body: Body> "}" => Box::new(Statement::For(name, value, body)),
 }
 
-For: Box<Statement> = {
-    "for" <name: Name> "in" <value: Expr> "{" <body: Body> "}" => Box::new(Statement::For(name, value, body)),
-}
-
 Assignment: Box<Statement> = {
     <Name> "=" <Expr> => Box::new(Statement::Assignment(<>)),
 }
