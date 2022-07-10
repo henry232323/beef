@@ -105,7 +105,7 @@ impl Runtime {
                             }
                         }
                     }
-                    _expr => None,
+                    _expr => panic!("Cannot if!"),
                 }
             }
             Function(_, _, _) => None,
@@ -118,6 +118,8 @@ impl Runtime {
                 let res = self.eval_expr(&expr, env);
                 Some(res)
             }
+            While(_, _) => None,
+            For(_, _, _) => None,
         };
     }
 

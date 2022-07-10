@@ -32,6 +32,8 @@ pub enum Statement {
     Function(String, Box<Vec<String>>, Vec<Box<Statement>>),
     Assignment(String, Box<Expr>),
     Return(Box<Expr>),
+    While(Box<Expr>, Vec<Box<Statement>>),
+    For(String, Box<Expr>, Vec<Box<Statement>>),
 }
 
 #[derive(Copy, Clone)]
@@ -96,6 +98,12 @@ impl Debug for Statement {
                 write!(fmt, "Assignment(name=({:#?}), value={:#?})", name, value)
             }
             Return(ref expr) => write!(fmt, "Return({:#?})", expr),
+            While(ref cond, body) => write!(fmt, "While(cond=({:#?}), body={:#?})", cond, body),
+            For(ref name, value, body) => write!(
+                fmt,
+                "For(name=({:#?}), value={:#?}, body={:#?})",
+                name, value, body
+            ),
         }
     }
 }
