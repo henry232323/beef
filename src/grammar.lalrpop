@@ -1,5 +1,5 @@
 use std::str::FromStr;
-use crate::ast::{Expr, Opcode, Statement, Name};
+use crate::ast::{Expr, Opcode, Statement, Name, Catch};
 
 grammar;
 
@@ -127,7 +127,7 @@ ArgumentList: Vec<String> = {
     <Name> => Vec::from([<>]),
     <mut old: ArgumentList> "," <new: Name> => {
         old.push(new);
-        return old
+        old
     },
     "(" <ArgumentList> ")",
     "(" ")" => Vec::new()
@@ -136,6 +136,25 @@ ArgumentList: Vec<String> = {
 If: Box<Statement> = {
     "if" <cond: Expr> "{" <body: Body> "}" => Box::new(Statement::If(cond, body, None)),
     "if" <cond: Expr> "{" <body: Body> "}" "else" "{" <elsebody: Body> "}" => Box::new(Statement::If(cond, body, Some(elsebody)))
+}
+
+Try: Box<Statement> = {
+    "try" "{" <body: Body> "}" <handler: Catch> => Box::new(Statement::Try(body, Vec::from([handler]))),
+    <mut old: Try> <handler: Catch> => {
+        match *old {
+            Statement::Try(ref body, ref mut handlers) => {
+                handlers.push(handler);
+            },
+            _ => {},
+        };
+        old
+    },
+}
+
+Catch: Box<Catch> = {
+    "catch" "{" <body: Body> "}" => Box::new(Catch::Catch(None, None, body)),
+    "catch" <cond: Expr> "{" <body: Body> "}" => Box::new(Catch::Catch(None, Some(cond), body)),
+    "catch" <cond: Expr> "as" <name: Name> "{" <body: Body> "}" => Box::new(Catch::Catch(Some(name), Some(cond), body)),
 }
 
 Import: Box<Statement> = {
@@ -186,7 +205,8 @@ pub Statement: Box<Statement> = {
     Assignment,
     While,
     For,
-    Import
+    Import,
+    Try,
 }
 
 pub FunctionBodyStatement: Box<Statement> = {

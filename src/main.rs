@@ -16,6 +16,15 @@ fn main() {
         r#"
     import math as matt;
     print("Hello world!");
+    try {
+        a = b;
+    } catch Exception as e {
+        print("a != b");
+    } catch Exception {
+        print("hmmm...");
+    } catch {
+        print("hmmm2...");
+    };
     "#,
     );
     println!("{:#?}", result);

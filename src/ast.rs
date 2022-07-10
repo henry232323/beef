@@ -27,9 +27,13 @@ pub enum Statement {
     Return(Box<Expr>),
     While(Box<Expr>, Vec<Box<Statement>>),
     For(String, Box<Expr>, Vec<Box<Statement>>),
-    //numpy=<String> np=<String>
-    //<[import], [x], [from], [y], [as], [z]>
     Import(Vec<Box<Name>>),
+    Try(Vec<Box<Statement>>, Vec<Box<Catch>>),
+}
+
+#[derive(Clone)]
+pub enum Catch {
+    Catch(Option<String>, Option<Box<Expr>>, Vec<Box<Statement>>)
 }
 
 #[derive(Clone)]
@@ -76,7 +80,7 @@ impl Debug for Expr {
                 "Function({:#?}, args={:#?}, body={:#?}, )",
                 name, args, body
             ),
-            None => write!(fmt, "None"),
+            None => write!(fmt, "None")
         }
     }
 }
@@ -111,7 +115,17 @@ impl Debug for Statement {
                 fmt,
                 "Import(imports=({:#?}))",
                 imports
-            )
+            ),
+            Try(stmt, handlers) => write!(fmt, "Try({:#?}, {:#?})", stmt, handlers),
+        }
+    }
+}
+
+impl Debug for Catch {
+    fn fmt(&self, fmt: &mut Formatter) -> Result<(), Error> {
+        use self::Catch::*;
+        match &*self {
+            Catch(name, expr, stmts) => write!(fmt, "Catch({:#?}, {:#?}, {:#?})", name, expr, stmts),
         }
     }
 }
@@ -120,8 +134,8 @@ impl Debug for Name {
     fn fmt(&self, fmt: &mut Formatter) -> Result<(), Error> {
         use self::Name::*;
         match &*self {
-            Name(name) => write!(fmt, "Name::Name({:#?})", name),
-            Alias(name, alias) => write!(fmt, "Name::Alias({:#?}, {:#?})", name, alias),
+            Name(name) => write!(fmt, "Name({:#?})", name),
+            Alias(name, alias) => write!(fmt, "Alias({:#?}, {:#?})", name, alias),
         } 
     }
 }
