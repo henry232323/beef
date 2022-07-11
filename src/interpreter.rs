@@ -91,7 +91,10 @@ impl Runtime {
     ) -> Option<Expr> {
         use self::Statement::*;
         return match &**statement {
-            Expression(expr) => Some(self.eval_expr(&expr, env)),
+            Expression(expr) => {
+                self.eval_expr(&expr, env);
+                None
+            },
             If(cond, body, elsebody) => {
                 let f_cond = self.eval_expr(&cond, env);
                 match f_cond {
@@ -101,7 +104,7 @@ impl Runtime {
                         } else {
                             match elsebody {
                                 Some(e_body) => self.eval_body(&e_body, env),
-                                None => None,
+                                Option::None => Option::None,
                             }
                         }
                     }
@@ -118,7 +121,23 @@ impl Runtime {
                 let res = self.eval_expr(&expr, env);
                 Some(res)
             }
-            While(_, _) => None,
+            While(cond, body) => {
+                let f_cond = self.eval_expr(cond, env);
+                match f_cond {
+                    Expr::Boolean(val) => {
+                        if val {
+                            let return_value = self.eval_body(&body, env);
+                            match return_value {
+                                Some(val) => Some(val),
+                                Option::None => self.eval_stmt(&Box::new(While(cond.clone(), body.clone())), env)
+                            }
+                        } else {
+                            Option::None
+                        }
+                    }
+                    _expr => panic!("Cannot while!"),
+                }
+            }
             For(_, _, _) => None,
             Import(_) => None,
             Try(_, _) => None,

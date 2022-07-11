@@ -14,17 +14,9 @@ lalrpop_mod!(pub grammar); // synthesized by LALRPOP
 fn main() {
     let result = grammar::BodyParser::new().parse(
         r#"
-    import math as matt;
-    print("Hello world!");
-    try {
-        a = b;
-    } catch Exception as e {
-        print("a != b");
-    } catch Exception {
-        print("hmmm...");
-    } catch {
-        print("hmmm2...");
-    };
+        while false {
+            print("It works");
+        };
     "#,
     );
     println!("{:#?}", result);
