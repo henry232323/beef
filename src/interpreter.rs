@@ -122,20 +122,21 @@ impl Runtime {
                 Some(res)
             }
             While(cond, body) => {
-                let f_cond = self.eval_expr(cond, env);
-                match f_cond {
-                    Expr::Boolean(val) => {
-                        if val {
+                loop {
+                    let f_cond = self.eval_expr(cond, env);
+                    match f_cond {
+                        Expr::Boolean(true) => {
                             let return_value = self.eval_body(&body, env);
                             match return_value {
-                                Some(val) => Some(val),
-                                Option::None => self.eval_stmt(&Box::new(While(cond.clone(), body.clone())), env)
+                                Some(val) => return Some(val),
+                                Option::None => {} // self.eval_stmt(&Box::new(While(cond.clone(), body.clone())), env)
                             }
-                        } else {
-                            Option::None
                         }
+                        Expr::Boolean(false) => {
+                            return None
+                        }
+                        _expr => panic!("Cannot while!"),
                     }
-                    _expr => panic!("Cannot while!"),
                 }
             }
             For(_, _, _) => None,

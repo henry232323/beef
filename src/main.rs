@@ -14,7 +14,7 @@ lalrpop_mod!(pub grammar); // synthesized by LALRPOP
 fn main() {
     let result = grammar::BodyParser::new().parse(
         r#"
-        while false {
+        while true {
             print("It works");
         };
     "#,

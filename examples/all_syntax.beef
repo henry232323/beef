@@ -38,3 +38,6 @@ try {
 } catch {
     print("hmmm2...");
 };
+while true {
+    print("It works");
+};
