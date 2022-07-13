@@ -1,5 +1,5 @@
-use crate::lib::primitives::boolean::Boolean;
-use crate::lib::primitives::types::{Type, TypeEnum};
+use crate::library::primitives::boolean::Boolean;
+use crate::library::primitives::types::{Type, TypeEnum};
 
 pub struct Float {
     pub(crate) value: f32,

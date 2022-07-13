@@ -1,7 +1,8 @@
 pub mod ast;
-// mod lib;
+// mod library;
+mod compiler;
 mod interpreter;
-mod lib;
+mod library;
 // mod interpreter;
 
 #[macro_use]

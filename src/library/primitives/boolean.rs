@@ -1,4 +1,4 @@
-use crate::lib::primitives::types::{Type, TypeEnum};
+use crate::library::primitives::types::{Type, TypeEnum};
 
 pub struct Boolean {
     pub value: bool,

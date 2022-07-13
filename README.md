@@ -34,3 +34,5 @@ karray = ktabk
 khash  = ktabk ktabk
 ktabk  = ktabtypeU { intU | (loU hiU) | strB* }
 ```
+
+https://github.com/jauhien/iron-kaleidoscope#chapter-2-llvm-ir-code-generation

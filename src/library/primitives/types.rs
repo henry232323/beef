@@ -1,7 +1,7 @@
-use crate::lib::primitives::boolean::Boolean;
-use crate::lib::primitives::float::Float;
-use crate::lib::primitives::integer::Integer;
-use crate::lib::primitives::object::Object;
+use crate::library::primitives::boolean::Boolean;
+use crate::library::primitives::float::Float;
+use crate::library::primitives::integer::Integer;
+use crate::library::primitives::object::Object;
 
 pub enum TypeEnum {
     Object(Object),
