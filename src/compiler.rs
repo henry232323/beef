@@ -1,17 +1,32 @@
 use crate::ast::{Expr, Opcode, Statement};
-use crate::Module;
+use crate::Module as ASTModule;
 
 use std::collections::HashMap;
 
+use inkwell::builder::Builder;
+use inkwell::context::Context;
+use inkwell::module::Module;
 use std::iter::zip;
 
-pub struct Runtime {
-    module: Module,
+pub struct Compiler<'a> {
+    tree: ASTModule,
+    context: Context,
+    module: Module<'a>,
+    builder: Builder<'a>,
 }
 
-impl Runtime {
-    pub fn new(module: Module) -> Runtime {
-        return Runtime { module };
+impl Compiler {
+    pub fn new(tree: ASTModule) -> Compiler {
+        let context = Context::create();
+        let module = context.create_module("my_module");
+        let builder = context.create_builder();
+
+        return Compiler {
+            context,
+            module,
+            builder,
+            tree,
+        };
     }
 
     fn eval_expr(&mut self, expr: &Box<Expr>, env: &mut HashMap<String, Box<Expr>>) -> Expr {
